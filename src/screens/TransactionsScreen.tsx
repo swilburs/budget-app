@@ -3,6 +3,7 @@ import { isDuplicate, payeeKey } from '../lib/categorize'
 import { parseBankCsv } from '../lib/csv'
 import { todayISO } from '../lib/dates'
 import { formatMoney, parseMoney } from '../lib/money'
+import { sampleTransactions } from '../lib/sample'
 import { useStore } from '../lib/store'
 import { INCOME, type BudgetState, type Transaction } from '../lib/types'
 
@@ -77,7 +78,24 @@ export function TransactionsScreen({ initialFilter = 'all' }: { initialFilter?: 
       )}
 
       {rows.length === 0 ? (
-        <p className="empty">{filter === 'review' ? 'Nothing to review.' : 'No transactions yet. Import a CSV from your bank to start.'}</p>
+        <div className="empty">
+          {filter === 'review' && state.transactions.length > 0 ? (
+            <p>Nothing to review.</p>
+          ) : (
+            <>
+              <p>No transactions yet. Import a CSV from your bank to start, or try it with example data.</p>
+              <button
+                onClick={() => {
+                  dispatch({ type: 'addTransactions', transactions: sampleTransactions(state.accounts[0]?.id ?? '') })
+                  setFilter('review')
+                }}
+                disabled={state.accounts.length === 0}
+              >
+                Load example transactions
+              </button>
+            </>
+          )}
+        </div>
       ) : (
         <ul className="tx-list">
           {rows.map((t) => (

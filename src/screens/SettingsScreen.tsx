@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ConfirmButton } from '../components/ConfirmButton'
 import { useStore } from '../lib/store'
 import type { AccountType, BudgetState } from '../lib/types'
 import { CategorySelect } from './TransactionsScreen'
@@ -31,15 +32,14 @@ export function SettingsScreen() {
               <span>
                 {a.name} <span className="muted small">{a.type}</span>
               </span>
-              <button
+              <ConfirmButton
                 className="link danger"
-                onClick={() => {
-                  const n = state.transactions.filter((t) => t.accountId === a.id).length
-                  if (n === 0 || window.confirm(`Delete ${a.name} and its ${n} transactions?`)) dispatch({ type: 'removeAccount', id: a.id })
-                }}
+                skip={!state.transactions.some((t) => t.accountId === a.id)}
+                confirmLabel={`Delete it and its ${state.transactions.filter((t) => t.accountId === a.id).length} transactions`}
+                onConfirm={() => dispatch({ type: 'removeAccount', id: a.id })}
               >
                 Remove
-              </button>
+              </ConfirmButton>
             </li>
           ))}
         </ul>
@@ -125,14 +125,9 @@ export function SettingsScreen() {
               }}
             />
           </label>
-          <button
-            className="danger"
-            onClick={() => {
-              if (window.confirm('Start over from the spreadsheet? This deletes all transactions and changes.')) dispatch({ type: 'reset' })
-            }}
-          >
+          <ConfirmButton className="danger" confirmLabel="Delete everything and start over" onConfirm={() => dispatch({ type: 'reset' })}>
             Start over
-          </button>
+          </ConfirmButton>
         </div>
         {message && <p role="status">{message}</p>}
       </div>
